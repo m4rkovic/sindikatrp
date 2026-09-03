@@ -7,9 +7,11 @@ import { PackageCard } from '@/components/package-card';
 import { ArrowRight, ArrowUpRight, MapIcon, ShieldIcon, UsersIcon } from '@/components/icons';
 import { principles, seasons, serverFacts, specs } from '@/lib/data/content';
 import { listPublic } from '@/lib/packages';
-import { site } from '@/lib/data/site';
+import { server, site } from '@/lib/data/site';
 
-export const dynamic = 'force-dynamic';
+// Admin akcije zovu revalidatePath('/') pa je stranica statička između izmena;
+// revalidate je samo mreža sigurnosti za promene mimo panela (npr. ops skripta).
+export const revalidate = 300;
 
 export default function HomePage() {
   const packages = listPublic(3);
@@ -44,7 +46,7 @@ export default function HomePage() {
             <div className="server-profile__copy">
               <span className="eyebrow eyebrow--muted">SERVER PROFILE</span>
               <h3>Manja zajednica.<br />Više prostora za priču.</h3>
-              <p>48 slotova nije ograničenje koje pokušavamo da sakrijemo. To je izbor. Lakše je zapamtiti ko je kome dužan, ko je kome pomogao i zašto je sledeći susret neprijatan.</p>
+              <p>{server.maxPlayers} slotova nije ograničenje koje pokušavamo da sakrijemo. To je izbor. Lakše je zapamtiti ko je kome dužan, ko je kome pomogao i zašto je sledeći susret neprijatan.</p>
               <Link href="/pravila" className="text-link">Pročitaj pravila <ArrowRight /></Link>
             </div>
             <div className="server-profile__facts">

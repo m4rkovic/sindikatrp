@@ -4,7 +4,7 @@ import { PackageCard } from '@/components/package-card';
 import { listPublic } from '@/lib/packages';
 
 export const metadata: Metadata = { title: 'Donacije', description: 'Paketi podrške za Sindikat Roleplay bez pay-to-win prednosti.' };
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default function DonationsPage() {
   const packages = listPublic();

@@ -19,6 +19,8 @@ npm run dev
 
 Otvori `http://localhost:3000`.
 
+> **Windows napomena:** ako `npm install` padne na `better-sqlite3` uz `node-gyp`/Visual Studio grešku, pokreni `npm install --ignore-scripts`. Paket isporučuje gotov `prebuilds/win32-x64.node` binarni fajl koji se koristi u runtime-u, pa lokalna kompajlacija nije potrebna. Potreban je Node 22+.
+
 Produkcija:
 
 ```powershell
@@ -58,7 +60,9 @@ Podrazumevana lokacija je `./data`:
 - `data/secret.key` — lokalni session/CSRF ključ, generiše se automatski
 - `data/uploads/` — uploadovane slike paketa
 
-Za produkciju možeš postaviti `SINDIKAT_DATA_DIR` na trajni direktorijum van projekta.
+Za produkciju možeš postaviti `SINDIKAT_DATA_DIR` na trajni direktorijum van projekta (vidi `.env.example`).
+
+> **Bezbednosna napomena:** `data/sindikat.db` je ranije bio commitovan u javni GitHub repo, zajedno sa hash-om admin lozinke. `.gitignore` sada isključuje bazu, ključ i upload fajlove iz repo-a — ali stari hash treba tretirati kao kompromitovan: promeni admin lozinku (`npm run admin:user -- admin`) i ukloni bazu iz git istorije ako repo ostaje javan.
 
 ## Arhitektura
 

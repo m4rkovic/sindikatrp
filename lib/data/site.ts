@@ -25,6 +25,10 @@ export const nav = [
   { label: 'Kontakt', href: '/kontakt' },
 ] as const;
 
+const seasonNo = String(site.season.number).padStart(2, '0');
+export const seasonCode = `S${seasonNo}`;
+export const seasonShort = `${seasonNo} · ${site.season.name}`;
+
 export const REDACTED_CFX = 'cfx.re/join/██████';
 
 export function cfxAddress() {

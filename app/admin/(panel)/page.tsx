@@ -22,12 +22,12 @@ export default async function AdminHomePage() {
             {packages.map((pkg, index) => (
               <article className="admin-package-row" key={pkg.id}>
                 <div className="admin-package-row__order"><b>{String(index + 1).padStart(2, '0')}</b><div>
-                  <form action={movePackageAction}><input type="hidden" name="csrf" value={session.csrf}/><input type="hidden" name="id" value={pkg.id}/><input type="hidden" name="direction" value="up"/><button title="Pomeri gore" disabled={index === 0}><ChevronUp /></button></form>
-                  <form action={movePackageAction}><input type="hidden" name="csrf" value={session.csrf}/><input type="hidden" name="id" value={pkg.id}/><input type="hidden" name="direction" value="down"/><button title="Pomeri dole" disabled={index === packages.length - 1}><ChevronDown /></button></form>
+                  <form action={movePackageAction}><input type="hidden" name="csrf" value={session.csrf}/><input type="hidden" name="id" value={pkg.id}/><input type="hidden" name="direction" value="up"/><button title="Pomeri gore" aria-label={`Pomeri gore: ${pkg.name}`} disabled={index === 0}><ChevronUp /></button></form>
+                  <form action={movePackageAction}><input type="hidden" name="csrf" value={session.csrf}/><input type="hidden" name="id" value={pkg.id}/><input type="hidden" name="direction" value="down"/><button title="Pomeri dole" aria-label={`Pomeri dole: ${pkg.name}`} disabled={index === packages.length - 1}><ChevronDown /></button></form>
                 </div></div>
                 <div className="admin-package-row__main"><span>{pkg.code || 'BEZ KODA'} · {pkg.periodLabel}</span><h3>{pkg.name}</h3><p>{pkg.price}{pkg.featured ? ' · ISTAKNUT' : ''}</p></div>
                 <div className="admin-package-row__status"><span className={pkg.visible ? 'is-live' : 'is-hidden'}>{pkg.visible ? 'OBJAVLJEN' : 'SAKRIVEN'}</span></div>
-                <div className="admin-package-row__actions"><form action={togglePackageAction}><input type="hidden" name="csrf" value={session.csrf}/><input type="hidden" name="id" value={pkg.id}/><button title={pkg.visible ? 'Sakrij' : 'Prikaži'}>{pkg.visible ? <EyeOffIcon /> : <EyeIcon />}</button></form><Link href={`/admin/paket/${pkg.id}`} title="Izmeni"><EditIcon /></Link></div>
+                <div className="admin-package-row__actions"><form action={togglePackageAction}><input type="hidden" name="csrf" value={session.csrf}/><input type="hidden" name="id" value={pkg.id}/><button title={pkg.visible ? 'Sakrij' : 'Prikaži'} aria-label={`${pkg.visible ? 'Sakrij' : 'Prikaži'}: ${pkg.name}`}>{pkg.visible ? <EyeOffIcon /> : <EyeIcon />}</button></form><Link href={`/admin/paket/${pkg.id}`} title="Izmeni" aria-label={`Izmeni: ${pkg.name}`}><EditIcon /></Link></div>
               </article>
             ))}
           </div>

@@ -29,7 +29,12 @@ const hmac = (domain: string, value: string, encoding: 'hex' | 'base64url') =>
 export const SESSION_COOKIE = 'sindikat_sid';
 const SESSION_DAYS = 7;
 const MAX_ATTEMPTS = 8;
+const MAX_ATTEMPTS_GLOBAL = 60;
 const ATTEMPT_WINDOW_MIN = 15;
+
+// Bez reverse proxy-ja nema pouzdane IP adrese, pa svi pokušaji padaju u
+// zajedničku 'unknown' kofu — throttle tada i dalje važi, samo je grublji.
+const attemptKey = (ip: string | null) => ip ?? 'unknown';
 
 export interface User { id: number; username: string }
 export interface Session { id: string; user: User; csrf: string }
@@ -111,22 +116,30 @@ export function csrfOk(session: Session | null, submitted: FormDataEntryValue | 
 }
 
 export function loginBlocked(ip: string | null): boolean {
-  if (!ip) return false;
-  const row = db().prepare(`
+  const window = `-${ATTEMPT_WINDOW_MIN} minutes`;
+  const perIp = db().prepare(`
     SELECT COUNT(*) AS n FROM login_attempts
      WHERE ip = ? AND at > datetime('now', ?)
-  `).get(ip, `-${ATTEMPT_WINDOW_MIN} minutes`) as { n: number };
-  return row.n >= MAX_ATTEMPTS;
+  `).get(attemptKey(ip), window) as { n: number };
+  if (perIp.n >= MAX_ATTEMPTS) return true;
+
+  // IP header je lako lažirati kada aplikacija nije iza proxy-ja, pa
+  // rotiranje adresa ne sme da zaobiđe limit — ukupan broj pokušaja u
+  // prozoru ima svoj plafon nezavisno od adrese.
+  const total = db().prepare(`
+    SELECT COUNT(*) AS n FROM login_attempts WHERE at > datetime('now', ?)
+  `).get(window) as { n: number };
+  return total.n >= MAX_ATTEMPTS_GLOBAL;
 }
 
 export function recordFailedLogin(ip: string | null, username: string): void {
-  db().prepare('INSERT INTO login_attempts (ip, at) VALUES (?, ?)').run(ip ?? 'unknown', nowIso());
+  db().prepare('INSERT INTO login_attempts (ip, at) VALUES (?, ?)').run(attemptKey(ip), nowIso());
   db().prepare("DELETE FROM login_attempts WHERE at < datetime('now', '-1 day')").run();
   audit('prijava.neuspešna', username.slice(0, 60), null, ip);
 }
 
 export function clearFailedLogins(ip: string | null): void {
-  if (ip) db().prepare('DELETE FROM login_attempts WHERE ip = ?').run(ip);
+  db().prepare('DELETE FROM login_attempts WHERE ip = ?').run(attemptKey(ip));
 }
 
 export async function clientIp(): Promise<string | null> {

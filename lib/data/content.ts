@@ -1,4 +1,4 @@
-import { server } from './site';
+import { seasonShort, server } from './site';
 
 export const principles = [
   {
@@ -38,7 +38,7 @@ export const serverFacts = [
   { label: 'Region', value: 'Srbija / Balkan' },
   { label: 'Kapacitet', value: `${server.maxPlayers} igrača` },
   { label: 'Pristup', value: 'Otvoren' },
-  { label: 'Sezona', value: '04 · New Beginning' },
+  { label: 'Sezona', value: seasonShort },
 ];
 
 export const seasons = [

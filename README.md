@@ -19,7 +19,7 @@ npm run dev
 
 Otvori `http://localhost:3000`.
 
-> **Windows napomena:** ako `npm install` padne na `better-sqlite3` uz `node-gyp`/Visual Studio grešku, pokreni `npm install --ignore-scripts`. Paket isporučuje gotov `prebuilds/win32-x64.node` binarni fajl koji se koristi u runtime-u, pa lokalna kompajlacija nije potrebna. Potreban je Node 22+.
+> **Windows napomena:** projekat ima `.npmrc` sa `ignore-scripts=true`, pa običan `npm install` radi bez Visual Studio-a — `better-sqlite3` isporučuje gotov `prebuilds/win32-x64.node` binarnik koji se koristi u runtime-u, a nijedan paket u projektu ne zahteva install skripte. Ako `.npmrc` ikad obrišeš, ekvivalent je `npm install --ignore-scripts`. Potreban je Node 22+. Ako pre ovoga postoji polomljen `node_modules` od pokušaja sa node-gyp greškom, prvo ga obriši.
 
 Produkcija:
 

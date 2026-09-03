@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# The panel and the fragment endpoints are not pages. They also send
+# X-Robots-Tag: noindex, so this is belt and braces.
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://sindikatrp.com/sitemap.xml

@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Connection string ne živi ovde od Prisma 7 — CLI ga čita iz
+// prisma.config.ts, a runtime klijent iz adaptera u lib/db.ts.
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  lastLoginAt  DateTime? @map("last_login_at")
+  sessions     Session[]
+
+  @@map("users")
+}
+
+// Sesije čuvaju HMAC hash cookie vrednosti, nikad samu vrednost — kopija
+// baze nikome ne daje aktivan login.
+model Session {
+  id        String   @id
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+  ip        String?
+  userAgent String?  @map("user_agent")
+
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// Jedan red po uploadovanoj slici. basename je content hash; fajlovi na disku
+// su basename-width.avif / .webp / .jpg. widths su širine koje su stvarno
+// generisane, da srcset nikad ne oglašava fajl koji ne postoji.
+model Image {
+  id        Int       @id @default(autoincrement())
+  basename  String    @unique
+  width     Int
+  height    Int
+  bytes     Int
+  widths    Int[]
+  alt       String    @default("")
+  createdAt DateTime  @default(now()) @map("created_at")
+  packages  Package[]
+
+  @@map("images")
+}
+
+enum Period {
+  monthly
+  once
+}
+
+// Cene su celobrojni minor units (centi) — tekstualno "5 EUR" je ono što
+// kasnije pravi probleme sa sortiranjem i promenom valute.
+model Package {
+  id          Int      @id @default(autoincrement())
+  code        String   @default("")
+  name        String
+  priceCents  Int      @map("price_cents")
+  currency    String   @default("EUR")
+  period      Period   @default(monthly)
+  perks       String   @default("")
+  description String   @default("")
+  url         String   @default("")
+  imageId     Int?     @map("image_id")
+  image       Image?   @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  featured    Boolean  @default(false)
+  visible     Boolean  @default(true)
+  position    Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([visible, position])
+  @@map("packages")
+}
+
+model LoginAttempt {
+  id Int      @id @default(autoincrement())
+  ip String
+  at DateTime @default(now())
+
+  @@index([ip, at])
+  @@map("login_attempts")
+}
+
+model AuditLog {
+  id       Int      @id @default(autoincrement())
+  username String?
+  action   String
+  detail   String   @default("")
+  ip       String?
+  at       DateTime @default(now())
+
+  @@map("audit_log")
+}
